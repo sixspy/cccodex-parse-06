@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}落档批次 #{{ batch.batch_seq }} · {{ lab }}{% endblock %}
+{% block content %}
+{% if batch.status == "处理中" %}<meta http-equiv="refresh" content="1" />{% endif %}
+<p class="crumb"><a href="/dedup/batches/">← 返回落档列表</a></p>
+<h1>落档批次 #{{ batch.batch_seq }} · 撞钥详情</h1>
+<dl class="meta">
+  <div><dt>任务</dt><dd><a href="/jobs/{{ batch.job.id }}/">{{ batch.job.title }}</a></dd></div>
+  <div><dt>处置名</dt><dd><span class="chip">{{ batch.disposition_name }}</span></dd></div>
+  <div><dt>状态</dt><dd><span class="chip">{{ batch.status }}</span></dd></div>
+  <div><dt>读盘代次</dt><dd>{{ batch.parse_epoch }}</dd></div>
+  <div><dt>总条数</dt><dd>{{ batch.total }}</dd></div>
+  <div><dt>落档条数</dt><dd>{{ batch.landed }}</dd></div>
+  <div><dt>跳过条数</dt><dd>{{ batch.skipped }}</dd></div>
+  <div><dt>撞钥条数</dt><dd>{{ batch.collided }}</dd></div>
+  <div><dt>开创人</dt><dd>{{ batch.created_by }}</dd></div>
+  <div><dt>开创时间</dt><dd>{{ batch.created_at|date:"Y-m-d H:i:s" }}</dd></div>
+  {% if batch.finished_at %}<div><dt>收尾时间</dt><dd>{{ batch.finished_at|date:"Y-m-d H:i:s" }}</dd></div>{% endif %}
+</dl>
+{% if batch.error %}<p class="err">{{ batch.error }}</p>{% endif %}
+{% if batch.status == "处理中" %}<p class="hint">去重后台进行中，页面每秒自刷。</p>{% endif %}
+
+<h2>撞钥样例</h2>
+{% if batch.collision_samples %}
+<table class="grid">
+  <thead><tr><th>原序号</th><th>撞钥钥匙</th></tr></thead>
+  <tbody>
+  {% for s in batch.collision_samples %}
+    <tr><td>{{ s.seq }}</td><td class="mono">{{ s.key }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="hint">本批无撞钥。</p>
+{% endif %}
+
+<h2>后到失败摘要</h2>
+<p>{% if batch.late_summary %}{{ batch.late_summary }}{% else %}<span class="hint">去重未收尾，暂无摘要。</span>{% endif %}</p>
+
+<h2>落档条目（前 20）</h2>
+{% if entries %}
+<table class="grid">
+  <thead><tr><th>原序号</th><th>去重钥匙</th><th>内容</th></tr></thead>
+  <tbody>
+  {% for e in entries %}
+    <tr><td>{{ e.seq }}</td><td class="mono">{{ e.dedup_key }}</td><td>{{ e.payload }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="hint">本批无落档条目。</p>
+{% endif %}
+{% endblock %}

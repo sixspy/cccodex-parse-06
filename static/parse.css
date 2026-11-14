@@ -40,3 +40,12 @@ button.secondary { background: transparent; color: var(--accent); }
 .meta dt { font-size: .75rem; color: #7a7163; } .meta dd { margin: .15rem 0 0; }
 .actions { display: flex; gap: .8rem; margin-top: 1.5rem; }
 a { color: var(--accent); }
+.nav { font-family: "IBM Plex Sans", "Segoe UI", sans-serif; font-size: .9rem; }
+.msg { font-family: "IBM Plex Sans", sans-serif; font-size: .95rem; padding: .55rem .8rem; border: 1px solid var(--line); background: #fffdf8; }
+.msg.error { color: #9b2c2c; border-color: #d9a8a8; }
+.msg.success { color: #2c6e2c; border-color: #a8d9a8; }
+.radio { display: flex; align-items: center; gap: .5rem; }
+.radio input { width: auto; margin-top: 0; }
+select { margin-top: .35rem; padding: .55rem .65rem; border: 1px solid var(--line); background: #fff; font-family: "IBM Plex Sans", sans-serif; }
+.archive-form, .policy-form { max-width: 420px; }
+h2 { margin-top: 2rem; font-size: 1.1rem; }

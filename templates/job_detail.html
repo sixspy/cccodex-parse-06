@@ -7,11 +7,67 @@
   <div><dt>编码</dt><dd class="mono">{{ job.code }}</dd></div>
   <div><dt>状态</dt><dd><span class="chip">{{ job.status }}</span></dd></div>
   <div><dt>源地址</dt><dd class="mono">{{ job.source_uri }}</dd></div>
+  <div><dt>读盘代次</dt><dd>{{ job.parse_epoch }}</dd></div>
   <div><dt>已解析</dt><dd>{{ job.parsed }}</dd></div>
   <div><dt>已入库</dt><dd>{{ job.landed }}</dd></div>
 </dl>
 <div class="actions">
-  <form method="post" action="/jobs/{{ job.id }}/parse/">{% csrf_token %}<button type="submit">执行解析</button></form>
-  <form method="post" action="/jobs/{{ job.id }}/land/">{% csrf_token %}<button type="submit" class="secondary">执行入库</button></form>
+  <form method="post" action="/jobs/{{ job.id }}/parse/">{% csrf_token %}<button type="submit">执行解析（读盘收尾）</button></form>
 </div>
+
+<h2>解析结果（去重钥匙）</h2>
+{% if records %}
+<table class="grid">
+  <thead><tr><th>序号</th><th>去重钥匙</th><th>内容</th></tr></thead>
+  <tbody>
+  {% for r in records %}
+    <tr>
+      <td>{{ r.seq }}</td>
+      <td class="mono">{% if r.dedup_key %}{{ r.dedup_key }}{% else %}<span class="err">（空钥匙）</span>{% endif %}</td>
+      <td>{{ r.payload }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="hint">读盘未收尾，暂无解析结果；未收尾禁止开去重落档。</p>
+{% endif %}
+
+<h2>去重落档</h2>
+<p class="hint">
+  当前钥匙策略：{% if policy %}<span class="chip">{{ policy.disposition_name }}</span>（{{ policy.decided_on }} 写入）{% else %}<span class="chip">未写</span>，请先到<a href="/dedup/policy/">钥匙页</a>定处置{% endif %}。
+  落档携带的处理法须与策略一致，否则算去重处理写歪了。
+</p>
+<form method="post" action="/jobs/{{ job.id }}/archive/" class="archive-form">
+  {% csrf_token %}
+  <label>携带处理法
+    <select name="disposition">
+      {% for value, name in dispositions %}
+      <option value="{{ value }}" {% if policy and policy.disposition == value %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button type="submit">开去重落档</button>
+</form>
+
+<h2>本任务落档批次</h2>
+{% if batches %}
+<table class="grid">
+  <thead><tr><th>批次</th><th>处置名</th><th>跳过条数</th><th>撞钥条数</th><th>状态</th><th></th></tr></thead>
+  <tbody>
+  {% for b in batches %}
+    <tr>
+      <td>#{{ b.batch_seq }}</td>
+      <td>{{ b.disposition_name }}</td>
+      <td>{{ b.skipped }}</td>
+      <td>{{ b.collided }}</td>
+      <td><span class="chip">{{ b.status }}</span></td>
+      <td><a href="/dedup/batches/{{ b.id }}/">撞钥详情</a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="hint">还没有落档批次。</p>
+{% endif %}
 {% endblock %}

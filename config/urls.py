@@ -8,5 +8,8 @@ urlpatterns = [
     path("jobs/", views.job_list),
     path("jobs/<int:job_id>/", views.job_detail),
     path("jobs/<int:job_id>/parse/", views.job_parse),
-    path("jobs/<int:job_id>/land/", views.job_land),
+    path("jobs/<int:job_id>/archive/", views.job_archive),
+    path("dedup/policy/", views.policy_page),
+    path("dedup/batches/", views.batch_list),
+    path("dedup/batches/<int:batch_id>/", views.batch_detail),
 ]

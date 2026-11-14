@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}钥匙策略 · {{ lab }}{% endblock %}
+{% block content %}
+<h1>钥匙策略</h1>
+<p class="lede">只许定一种处置写进策略，写完当天不许换。落档携带的处理法若与策略不一致，按去重处理写歪了拦回。</p>
+<dl class="meta">
+  <div><dt>当前处置</dt><dd>{% if policy %}<span class="chip">{{ policy.disposition_name }}</span>{% else %}<span class="chip">未写</span>{% endif %}</dd></div>
+  <div><dt>写入日期</dt><dd>{% if policy %}{{ policy.decided_on }}{% else %}—{% endif %}</dd></div>
+  <div><dt>今天</dt><dd>{{ today }}</dd></div>
+  <div><dt>当天可换</dt><dd>{% if locked_today %}否（写完当天不许换）{% else %}是{% endif %}</dd></div>
+</dl>
+{% if locked_today %}
+<p class="hint">策略今天已写过，当天不许换；明天零点后可重定。</p>
+{% else %}
+<form method="post" action="/dedup/policy/" class="policy-form">
+  {% csrf_token %}
+  {% for value, name in dispositions %}
+  <label class="radio">
+    <input type="radio" name="disposition" value="{{ value }}" {% if policy and policy.disposition == value %}checked{% endif %} />
+    {{ name }}
+  </label>
+  {% endfor %}
+  <button type="submit">写入策略</button>
+</form>
+{% endif %}
+{% endblock %}
